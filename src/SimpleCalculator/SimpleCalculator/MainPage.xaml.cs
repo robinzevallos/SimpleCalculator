@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using SimpleCalculator.Common.Styles;
 using Xamarin.Forms;
+using Xamarin.Forms.Internals;
 
 namespace SimpleCalculator
 {
@@ -15,6 +17,18 @@ namespace SimpleCalculator
         {
             InitializeComponent();
             OnClear(this, null);
+
+            gridMain.Children.ForEach(_ =>
+            {
+                if (_ is Button button)
+                {
+                    button.Clicked += async (s, e) =>
+                    {
+                        await button.ScaleTo(1.3);
+                        await button.ScaleTo(1);
+                    };
+                }
+            });
         }
 
         void OnSelectNumber(object sender, EventArgs e)
@@ -77,11 +91,11 @@ namespace SimpleCalculator
                 firstNumber = result;
                 currentState = -1;
 
-                
+
             }
         }
 
-        
+
 
         void OnNegative(object sender, EventArgs e)
         {
@@ -117,16 +131,29 @@ namespace SimpleCalculator
             new ClayTheme()
         };
 
-        void ThemeSwitcher_Clicked(System.Object sender, System.EventArgs e)
+        async void ThemeSwitcher_Clicked(System.Object sender, System.EventArgs e)
         {
             themeIndex += 1;
-            if(themeIndex >= themes.Length)
+            if (themeIndex >= themes.Length)
             {
                 themeIndex = 0;
             }
 
+            ellipse.Scale = 0;
+            ellipse.HeightRequest = Height * 2;
+            ellipse.WidthRequest = Width * 2;
+            ellipse.TranslationX = -Width / 2;
+            ellipse.TranslationY = -Height / 2;
+
             App.Current.Resources = themes[themeIndex];
-            
+
+            var primaryColor = (Color)themes[themeIndex]["PrimaryColor"];
+
+            ellipse.Fill = new SolidColorBrush(primaryColor);
+
+            await ellipse.ScaleTo(3, 850);
+
+            BackgroundColor = primaryColor;
         }
     }
 }
